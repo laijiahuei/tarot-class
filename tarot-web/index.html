@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>神秘塔羅牌占卜 - 課堂活動</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Serif TC', serif;
+            background-color: #0f172a; /* slate-900 */
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(76, 29, 149, 0.15), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(15, 118, 110, 0.15), transparent 25%);
+        }
+        
+        .card-container {
+            perspective: 1000px;
+        }
+        
+        .tarot-card {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border: 2px solid #fbbf24; /* amber-400 */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 0 20px rgba(251, 191, 36, 0.2);
+            transition: all 0.5s ease;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.8s ease-in forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="text-slate-200 min-h-screen p-4 md:p-8">
+
+    <div class="max-w-3xl mx-auto space-y-12">
+        
+        <!-- Header -->
+        <header class="text-center space-y-4 pt-8 pb-4 border-b border-slate-700">
+            <h1 class="text-4xl md:text-5xl font-bold text-amber-400 tracking-wider">靈魂之鏡：塔羅占卜</h1>
+            <p class="text-slate-400 text-lg">課堂互動探索體驗</p>
+        </header>
+
+        <!-- Section 1: Draw a Card -->
+        <section class="bg-slate-800/50 p-6 md:p-8 rounded-2xl border border-slate-700 shadow-xl">
+            <h2 class="text-2xl font-bold text-amber-300 mb-4">一、抽取你的命運指引</h2>
+            <p class="mb-6 text-lg leading-relaxed">請誠心的默念你心中想要占卜的事情。準備好後，點擊下方按鈕抽取一張專屬於你的塔羅牌（包含大、小阿爾克那共 78 張）。</p>
+            
+            <div class="text-center">
+                <button onclick="drawRandomCard()" class="bg-amber-600 hover:bg-amber-500 text-white font-bold py-3 px-8 rounded-full text-lg transition duration-300 shadow-lg hover:shadow-amber-500/50 transform hover:-translate-y-1">
+                    ✨ 為我抽一張牌 ✨
+                </button>
+            </div>
+
+            <!-- Drawn Card Display -->
+            <div id="drawn-card-area" class="mt-8 flex justify-center hidden">
+                <div class="tarot-card w-64 h-96 rounded-xl flex flex-col items-center justify-center p-6 text-center relative overflow-hidden">
+                    <img id="drawn-img" src="" alt="Tarot Card" class="absolute inset-0 w-full h-full object-cover hidden z-0 opacity-80">
+                    <div class="relative z-10 flex flex-col items-center justify-center h-full w-full bg-slate-900/60 rounded-lg p-4">
+                        <div id="drawn-emoji" class="text-7xl mb-4 drop-shadow-lg"></div>
+                        <div id="drawn-number" class="text-amber-400 text-xl font-bold mb-2 drop-shadow-md"></div>
+                        <div id="drawn-name" class="text-2xl font-bold text-white tracking-widest drop-shadow-md"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Form Link -->
+        <section class="bg-slate-800/50 p-6 md:p-8 rounded-2xl border border-slate-700 shadow-xl text-center">
+            <h2 class="text-2xl font-bold text-amber-300 mb-4">二、記錄你的牌卡</h2>
+            <p class="mb-6 text-lg">記下你剛才抽到的「牌卡號碼」與「名稱」，並點擊下方連結填寫紀錄表單。</p>
+            <a href="https://forms.gle/91ytw6rvPzkSTZrXA" target="_blank" rel="noopener noreferrer" class="inline-block bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-8 rounded-full text-lg transition duration-300 shadow-lg hover:shadow-indigo-500/50">
+                📝 前往填寫紀錄表單
+            </a>
+        </section>
+
+        <!-- Section 3: Read the Card -->
+        <section class="bg-slate-800/50 p-6 md:p-8 rounded-2xl border border-slate-700 shadow-xl">
+            <h2 class="text-2xl font-bold text-amber-300 mb-4">三、解牌時間</h2>
+            <p class="mb-6 text-lg">請解題的同學，在下方輸入問事者抽到的「塔羅牌專屬編號 (1-78)」，來查看他抽到的牌卡。</p>
+            
+            <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                <input type="number" id="card-input" min="1" max="78" placeholder="輸入編號 (1-78)" class="bg-slate-700 border border-slate-600 text-white text-xl rounded-lg focus:ring-amber-500 focus:border-amber-500 block w-48 p-3 text-center placeholder-slate-400">
+                <button onclick="lookupCard()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-300 shadow-lg hover:shadow-emerald-500/50">
+                    🔍 顯示牌卡
+                </button>
+            </div>
+            
+            <!-- Error Message -->
+            <div id="lookup-error" class="text-red-400 text-center mt-4 hidden font-bold">請輸入 1 到 78 之間的有效編號！</div>
+
+            <!-- Lookup Card Display -->
+            <div id="lookup-card-area" class="mt-8 flex justify-center hidden">
+                <div class="tarot-card w-64 h-96 rounded-xl flex flex-col items-center justify-center p-6 text-center relative overflow-hidden">
+                    <img id="lookup-img" src="" alt="Tarot Card" class="absolute inset-0 w-full h-full object-cover hidden z-0 opacity-80">
+                    <div class="relative z-10 flex flex-col items-center justify-center h-full w-full bg-slate-900/60 rounded-lg p-4">
+                        <div id="lookup-emoji" class="text-7xl mb-4 drop-shadow-lg"></div>
+                        <div id="lookup-number" class="text-amber-400 text-xl font-bold mb-2 drop-shadow-md"></div>
+                        <div id="lookup-name" class="text-2xl font-bold text-white tracking-widest drop-shadow-md"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Instruction -->
+        <section class="text-center p-6 bg-slate-900 border border-amber-900/50 rounded-xl">
+            <h2 class="text-xl font-bold text-amber-500 mb-2">四、最終指示</h2>
+            <p class="text-lg text-slate-300">請根據老師公布的網址當個鐵口直斷的算命師。</p>
+        </section>
+
+        <!-- Footer -->
+        <footer class="text-center text-slate-500 text-sm pb-8">
+            &copy; 塔羅牌課堂活動系統 | 僅供教學互動使用
+        </footer>
+
+    </div>
+
+    <script>
+        // 塔羅牌大阿爾克那資料 (22張)
+        // 圖片路徑已設定為配合 download_tarot.py 下載的 tarot_rws 資料夾
+        const majorCards = [
+            { name: "愚者 (The Fool)", emoji: "🚶‍♂️", imageUrl: "tarot_rws/major_00_Fool.jpg" },
+            { name: "魔術師 (The Magician)", emoji: "✨", imageUrl: "tarot_rws/major_01_Magician.jpg" },
+            { name: "女祭司 (The High Priestess)", emoji: "📖", imageUrl: "tarot_rws/major_02_High_Priestess.jpg" },
+            { name: "皇后 (The Empress)", emoji: "👑", imageUrl: "tarot_rws/major_03_Empress.jpg" },
+            { name: "皇帝 (The Emperor)", emoji: "🛡️", imageUrl: "tarot_rws/major_04_Emperor.jpg" },
+            { name: "教皇 (The Hierophant)", emoji: "🗝️", imageUrl: "tarot_rws/major_05_Hierophant.jpg" },
+            { name: "戀人 (The Lovers)", emoji: "❤️", imageUrl: "tarot_rws/major_06_Lovers.jpg" },
+            { name: "戰車 (The Chariot)", emoji: "🐎", imageUrl: "tarot_rws/major_07_Chariot.jpg" },
+            { name: "力量 (Strength)", emoji: "🦁", imageUrl: "tarot_rws/major_08_Strength.jpg" },
+            { name: "隱者 (The Hermit)", emoji: "🏮", imageUrl: "tarot_rws/major_09_Hermit.jpg" },
+            { name: "命運之輪 (Wheel of Fortune)", emoji: "🎡", imageUrl: "tarot_rws/major_10_Wheel_of_Fortune.jpg" },
+            { name: "正義 (Justice)", emoji: "⚖️", imageUrl: "tarot_rws/major_11_Justice.jpg" },
+            { name: "倒吊人 (The Hanged Man)", emoji: "🙃", imageUrl: "tarot_rws/major_12_Hanged_Man.jpg" },
+            { name: "死神 (Death)", emoji: "💀", imageUrl: "tarot_rws/major_13_Death.jpg" },
+            { name: "節制 (Temperance)", emoji: "🌊", imageUrl: "tarot_rws/major_14_Temperance.jpg" },
+            { name: "惡魔 (The Devil)", emoji: "😈", imageUrl: "tarot_rws/major_15_Devil.jpg" },
+            { name: "高塔 (The Tower)", emoji: "⚡", imageUrl: "tarot_rws/major_16_Tower.jpg" },
+            { name: "星星 (The Star)", emoji: "⭐", imageUrl: "tarot_rws/major_17_Star.jpg" },
+            { name: "月亮 (The Moon)", emoji: "🌙", imageUrl: "tarot_rws/major_18_Moon.jpg" },
+            { name: "太陽 (The Sun)", emoji: "☀️", imageUrl: "tarot_rws/major_19_Sun.jpg" },
+            { name: "審判 (Judgement)", emoji: "🎺", imageUrl: "tarot_rws/major_20_Judgement.jpg" },
+            { name: "世界 (The World)", emoji: "🌍", imageUrl: "tarot_rws/major_21_World.jpg" }
+        ].map((card, index) => ({ ...card, id: index + 1 }));
+
+        // 小阿爾克那資料 (56張) 自動生成
+        const minorSuits = [
+            { id: 'wands', name: '權杖', emoji: '🔥' },
+            { id: 'cups', name: '聖杯', emoji: '🏆' },
+            { id: 'swords', name: '寶劍', emoji: '⚔️' },
+            { id: 'pentacles', name: '錢幣', emoji: '🪙' }
+        ];
+        const minorRanks = ["一 (Ace)", "二 (Two)", "三 (Three)", "四 (Four)", "五 (Five)", "六 (Six)", "七 (Seven)", "八 (Eight)", "九 (Nine)", "十 (Ten)", "侍者 (Page)", "騎士 (Knight)", "王后 (Queen)", "國王 (King)"];
+        
+        let minorCards = [];
+        let currentId = 23; // 大牌佔了 1~22，小牌從 23 號開始
+        minorSuits.forEach(suit => {
+            for(let i = 1; i <= 14; i++) {
+                const numStr = i < 10 ? '0' + i : i.toString();
+                minorCards.push({
+                    id: currentId++,
+                    name: `${suit.name}${minorRanks[i-1]}`,
+                    emoji: suit.emoji,
+                    imageUrl: `tarot_rws/${suit.id}_${numStr}.jpg`
+                });
+            }
+        });
+
+        // 合併為完整的 78 張牌陣列
+        const tarotCards = [...majorCards, ...minorCards];
+
+        // 處理圖片與Emoji顯示的共用函式
+        function updateCardDisplay(card, prefix) {
+            const imgElement = document.getElementById(`${prefix}-img`);
+            const emojiElement = document.getElementById(`${prefix}-emoji`);
+            
+            // 統一顯示 1~78 號
+            document.getElementById(`${prefix}-number`).innerText = `編號: ${card.id}`;
+            document.getElementById(`${prefix}-name`).innerText = card.name;
+
+            if (card.imageUrl && card.imageUrl.trim() !== "") {
+                // 如果有圖片網址，顯示圖片背景，隱藏 Emoji
+                imgElement.src = card.imageUrl;
+                imgElement.classList.remove('hidden');
+                emojiElement.classList.add('hidden');
+            } else {
+                // 如果沒有圖片網址，顯示 Emoji
+                imgElement.classList.add('hidden');
+                emojiElement.classList.remove('hidden');
+                emojiElement.innerText = card.emoji;
+            }
+        }
+
+        // 抽取隨機卡牌
+        function drawRandomCard() {
+            const randomIndex = Math.floor(Math.random() * tarotCards.length);
+            const card = tarotCards[randomIndex];
+            
+            const area = document.getElementById('drawn-card-area');
+            
+            // 更新內容
+            updateCardDisplay(card, 'drawn');
+            
+            // 顯示並加入動畫
+            area.classList.remove('hidden');
+            
+            // 重新觸發動畫的小技巧
+            const cardElement = area.querySelector('.tarot-card');
+            cardElement.classList.remove('fade-in');
+            void cardElement.offsetWidth; // 觸發 reflow
+            cardElement.classList.add('fade-in');
+        }
+
+        // 查詢特定卡牌
+        function lookupCard() {
+            const inputVal = document.getElementById('card-input').value;
+            const num = parseInt(inputVal);
+            const errorMsg = document.getElementById('lookup-error');
+            const area = document.getElementById('lookup-card-area');
+
+            // 驗證輸入範圍 (1~78)
+            if (isNaN(num) || num < 1 || num > 78) {
+                errorMsg.classList.remove('hidden');
+                area.classList.add('hidden');
+                return;
+            }
+
+            errorMsg.classList.add('hidden');
+            
+            // 從陣列中取出對應的卡片 (陣列索引是 編號 - 1)
+            const card = tarotCards[num - 1];
+
+            // 更新內容
+            updateCardDisplay(card, 'lookup');
+
+            // 顯示並加入動畫
+            area.classList.remove('hidden');
+            
+            // 重新觸發動畫
+            const cardElement = area.querySelector('.tarot-card');
+            cardElement.classList.remove('fade-in');
+            void cardElement.offsetWidth; // 觸發 reflow
+            cardElement.classList.add('fade-in');
+        }
+    </script>
+</body>
+</html>
